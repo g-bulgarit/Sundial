@@ -1,0 +1,6 @@
+// PINOUT
+#define DATA_PIN d3
+
+// LED
+#define MAX_LED_BRIGHTNESS 165
+#define NUM_LEDS 60
