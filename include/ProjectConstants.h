@@ -1,7 +1,7 @@
 #pragma once
 
 // PINOUT
-#define DATA_PIN 3
+const int DATA_PIN = 5;
 
 // LED
 const int MAX_LED_BRIGHTNESS = 165;
