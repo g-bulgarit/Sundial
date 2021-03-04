@@ -7,7 +7,10 @@ void SetStripColor(struct CRGB* leds, uint8_t hue, uint8_t saturation, uint8_t v
     FastLED.show();
 }
 
-void AmberToSunlight(struct CRGB* leds, int transitionTimeSec){
+void AmberToSunlight(struct CRGB* leds, int transitionTimeSec, int dwellTimeSec){
+    // Transition from amber color to `sunlight` color, with parameters:
+    //      ::transitionTimeSec - Time from start (amber) to finish
+    //      ::dwellTimeSec      - Time to stay lit with the last color of the sequence. 
     int color_steps = hue_sunlight - hue_amber;
     for (int ihue = hue_amber; ihue < (hue_amber + color_steps); ihue++){
         SetStripColor(leds, ihue, 255, 20);
@@ -18,8 +21,9 @@ void AmberToSunlight(struct CRGB* leds, int transitionTimeSec){
         Serial.print(" out of ");
         Serial.println(color_steps);
         #endif
-        
-        delay(transitionTimeSec*1000 / color_steps);
+
+        FastLED.delay(transitionTimeSec*1000 / color_steps);
     }
+    FastLED.delay(dwellTimeSec);
 
 }
