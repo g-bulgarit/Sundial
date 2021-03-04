@@ -9,13 +9,12 @@ CRGB leds[NUM_LEDS];
 
 void setup() { 
     pinMode(5, OUTPUT);
+    Serial.begin(9600);
     // FastLED.addLeds<NEOPIXEL, DATA_PIN>(leds, NUM_LEDS);  // GRB ordering is assumed
-    FastLED.addLeds<WS2812B, DATA_PIN, RGB>(leds, NUM_LEDS);  // GRB ordering is typical
+    FastLED.addLeds<WS2812B, DATA_PIN, GRB>(leds, NUM_LEDS);  // GRB ordering is typical
 }
 
 void loop() { 
-  SetStripColor(leds, 160, 250, 30);
-  delay(500);
-  SetStripColor(leds, 120, 250, 30);
-  delay(500);
+  AmberToSunlight(leds, 30);
+  delay(1000);
 }
