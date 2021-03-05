@@ -7,6 +7,13 @@ void SetStripColor(struct CRGB* leds, uint8_t hue, uint8_t saturation, uint8_t v
     FastLED.show();
 }
 
+void SetStripColorRGB(struct CRGB* leds, uint8_t r, uint8_t g, uint8_t b){
+    // Set a RGB color to the whole strip at once, and show it.
+    FastLED.setBrightness(MAX_LED_BRIGHTNESS);
+    fill_solid(leds, NUM_LEDS, CRGB(r, g, b));
+    FastLED.show();
+}
+
 void AmberToSunlight(struct CRGB* leds,int introTime, int transitionTimeSec, int dwellTimeSec){
     // Transition from amber color to `sunlight` color, with parameters:
     //      ::transitionTimeSec - Time from start (amber) to finish
@@ -39,6 +46,12 @@ void AmberToSunlight(struct CRGB* leds,int introTime, int transitionTimeSec, int
     for (int j = 0; j < dwellTimeSec; j++){
         SetStripColor(leds, ihue, isat, MAX_LED_BRIGHTNESS);
         FastLED.delay(1000);
+    }
+
+    // Fade out
+    for (int f=MAX_LED_BRIGHTNESS; f > 0; f--){
+        SetStripColor(leds, ihue, isat, f);
+        FastLED.delay(800);
     }
 
     SetStripColor(leds, 0, 0, 0); // turn off leds
