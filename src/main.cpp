@@ -105,6 +105,7 @@ BLYNK_WRITE(V2){
     String currentWeekday = GetWeekday(weekday());
     Serial.print("Time day is:");
     Serial.println(currentWeekday);
+    AmberToSunlight(leds, 30, 20);
     
 }
 

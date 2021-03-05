@@ -12,8 +12,11 @@ void AmberToSunlight(struct CRGB* leds, int transitionTimeSec, int dwellTimeSec)
     //      ::transitionTimeSec - Time from start (amber) to finish
     //      ::dwellTimeSec      - Time to stay lit with the last color of the sequence. 
     int color_steps = hue_sunlight - hue_amber;
-    for (int ihue = hue_amber; ihue < (hue_amber + color_steps); ihue++){
-        SetStripColor(leds, ihue, 255, 20);
+    int isat;
+    int ihue;
+    for (ihue = hue_amber; ihue < (hue_amber + color_steps); ihue++){
+        isat = 255-(ihue*1.5);
+        SetStripColor(leds, ihue, isat, 50);
         
         #ifdef DEBUG
         Serial.print("Hue of ");
@@ -24,6 +27,12 @@ void AmberToSunlight(struct CRGB* leds, int transitionTimeSec, int dwellTimeSec)
 
         FastLED.delay(transitionTimeSec*1000 / color_steps);
     }
-    FastLED.delay(dwellTimeSec);
+    
+    // Dwell
+    for (int j = 0; j < dwellTimeSec; j++){
+        SetStripColor(leds, ihue, isat, 50);
+        FastLED.delay(1000);
+    }
 
+    SetStripColor(leds, 0, 0, 0); // turn off leds
 }

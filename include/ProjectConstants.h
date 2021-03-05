@@ -13,3 +13,4 @@ const int hue_sunlight = 60;
 
 // Blynk Debug
 #define BLYNK_PRINT Serial
+#define DEBUG
