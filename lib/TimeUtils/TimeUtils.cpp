@@ -1,3 +1,5 @@
+#include "TimeUtils.h"
+#include "../../include/ProjectConstants.h"
 
 const char* GetWeekday(int dayNumber){
     switch (dayNumber){
@@ -11,15 +13,29 @@ const char* GetWeekday(int dayNumber){
     }
 }
 
-/*
-void updateTime(int updateIntervalSec){
-    unsigned long currentTime = millis();
-    if (millis() <= currentTime + updateIntervalSec){
-        // Get current time and DoW
-        // Compare time to alarm
-        // Activate wake sequence if alarm should be triggered
+
+void checkAlarm(stAlarms* currentAlarm){
+    
+    #ifdef DEBUG
+    Serial.println("[!] Data:");
+    Serial.print("[    >] Alarm Hour: ");
+    Serial.println(currentAlarm->Hour);
+    Serial.print("[    >] Alarm Minute: ");
+    Serial.println(currentAlarm->Minute);
+    Serial.println("[    >] Alarm days: ");
+    for (int d=0; d<7; d++){
+        if (currentAlarm->DayOfWeekHist[d] == 1){
+        Serial.println(GetWeekday(d));
+        }
     }
+  #endif
+
+    // int currentHour = hour();
+    // int currentMinute = minute();
+    // int currentDay = weekday();
+
+    return;
 
 }
-*/
+
 // Things we get from Blynk: Day(1-7), Hour(0-24), Minute(0-60)

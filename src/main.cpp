@@ -4,6 +4,7 @@
 #include <TimeLib.h>
 #include <WidgetRTC.h>
 #include <EEPROM.h>
+#include <Ticker.h>
 
 
 #include "ProjectConstants.h"
@@ -14,7 +15,7 @@
 // Define an LED array
 CRGB leds[NUM_LEDS];
 WidgetRTC rtc;
-
+Ticker update;
 
 void setup() { 
   // Initiallize pins
@@ -30,6 +31,12 @@ void setup() {
   EEPROM.begin(256); // Emulate 256 bytes of EEPROM in RAM
   stAlarms currentAlarm;
   EEPROM.get(0, currentAlarm);
+
+  // Allocate memory for the alarm to pass it around
+  stAlarms* currentAlarmPtr = (stAlarms*)malloc(sizeof(stAlarms));
+  currentAlarmPtr->Hour = currentAlarm.Hour;
+  currentAlarmPtr->Minute = currentAlarm.Minute;
+  memcpy(currentAlarmPtr->DayOfWeekHist, currentAlarm.DayOfWeekHist, sizeof(currentAlarm.DayOfWeekHist));
 
   #ifdef DEBUG
   Serial.println("[!] Current Set Alarm:");
@@ -52,6 +59,8 @@ void setup() {
   // Initiallize RTC
   rtc.begin();
   setSyncInterval(5 * 60); // Sync interval in seconds (5 minutes)
+
+  update.attach(30, checkAlarm, currentAlarmPtr);
 
 }
 
@@ -87,20 +96,21 @@ BLYNK_WRITE(V1) {
   EEPROM.commit();
 
   Serial.println("[!] Stored the alarm in EEPROM!");
+
   #ifdef DEBUG
   Serial.println("[!] Data:");
   Serial.print("[    >] Alarm Hour: ");
   Serial.println(Alarm.Hour);
   Serial.print("[    >] Alarm Minute: ");
   Serial.println(Alarm.Minute);
-  Serial.print("[    >] Alarm days: ");
+  Serial.println("[    >] Alarm days: ");
   for (int d=0; d<7; d++){
     if (Alarm.DayOfWeekHist[d] == 1){
       Serial.println(GetWeekday(d));
     }
   }
-
   #endif
+
 }
 
 BLYNK_WRITE(V2){
@@ -125,5 +135,4 @@ BLYNK_WRITE(V3){
 
 void loop() { 
   Blynk.run();
-  // updateTime();
 }
