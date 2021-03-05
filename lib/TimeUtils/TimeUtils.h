@@ -1,0 +1,1 @@
+const char* GetWeekday(int dayNumber);

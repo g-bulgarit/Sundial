@@ -7,6 +7,7 @@
 #include "ProjectConstants.h"
 #include "SecretKeys.h"
 #include "LedControl.h"
+#include "TimeUtils.h"
 
 // Define an LED array
 CRGB leds[NUM_LEDS];
@@ -101,6 +102,10 @@ BLYNK_WRITE(V2){
     String currentTime = String(hour()) + ":" + minute() + ":" + second();
     Serial.print("Time now is:");
     Serial.println(currentTime);
+    String currentWeekday = GetWeekday(weekday());
+    Serial.print("Time day is:");
+    Serial.println(currentWeekday);
+    
 }
 
 
