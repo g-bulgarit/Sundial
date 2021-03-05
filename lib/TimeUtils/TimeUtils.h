@@ -1,5 +1,6 @@
-#include <Arduino.h>
+#pragma once
 #include <TimeLib.h>
+#include "LedControl.h"
 
 typedef struct Alarms{
     char DayOfWeekHist[7];
@@ -8,4 +9,4 @@ typedef struct Alarms{
 } stAlarms;
 
 const char* GetWeekday(int dayNumber);
-void checkAlarm(stAlarms* currentAlarm);
+void checkAlarm(std::pair<stAlarms*, CRGB*> *currentAlarm);

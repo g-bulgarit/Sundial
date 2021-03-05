@@ -1,5 +1,4 @@
-#include <FastLED.h>
-#include "../../include/ProjectConstants.h"
+#include "LedControl.h"
 
 void SetStripColor(struct CRGB* leds, uint8_t hue, uint8_t saturation, uint8_t value){
     // Set a HSV color to the whole strip at once, and show it.
@@ -14,7 +13,7 @@ void SetStripColorRGB(struct CRGB* leds, uint8_t r, uint8_t g, uint8_t b){
     FastLED.show();
 }
 
-void AmberToSunlight(struct CRGB* leds,int introTime, int transitionTimeSec, int dwellTimeSec){
+void AmberToSunlight(struct CRGB* leds, int introTime, int transitionTimeSec, int dwellTimeSec){
     // Transition from amber color to `sunlight` color, with parameters:
     //      ::transitionTimeSec - Time from start (amber) to finish
     //      ::dwellTimeSec      - Time to stay lit with the last color of the sequence. 

@@ -5,6 +5,7 @@
 #include <WidgetRTC.h>
 #include <EEPROM.h>
 #include <Ticker.h>
+#include <utility>
 
 
 #include "ProjectConstants.h"
@@ -12,10 +13,13 @@
 #include "LedControl.h"
 #include "TimeUtils.h"
 
-// Define an LED array
-CRGB leds[NUM_LEDS];
+
 WidgetRTC rtc;
 Ticker update;
+
+// Define an LED array
+static CRGB leds[NUM_LEDS];
+
 
 void setup() { 
   // Initiallize pins
@@ -37,6 +41,8 @@ void setup() {
   currentAlarmPtr->Hour = currentAlarm.Hour;
   currentAlarmPtr->Minute = currentAlarm.Minute;
   memcpy(currentAlarmPtr->DayOfWeekHist, currentAlarm.DayOfWeekHist, sizeof(currentAlarm.DayOfWeekHist));
+
+  std::pair<stAlarms*, CRGB*> pairPtr(currentAlarmPtr, leds);
 
   #ifdef DEBUG
   Serial.println("[!] Current Set Alarm:");
@@ -60,7 +66,7 @@ void setup() {
   rtc.begin();
   setSyncInterval(5 * 60); // Sync interval in seconds (5 minutes)
 
-  update.attach(30, checkAlarm, currentAlarmPtr);
+  update.attach(30, checkAlarm, &pairPtr);
 
 }
 
