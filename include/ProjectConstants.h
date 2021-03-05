@@ -10,3 +10,6 @@ const int MAX_LED_BRIGHTNESS = 165;
 // Colors
 const int hue_amber = 0;
 const int hue_sunlight = 60;
+
+// Blynk Debug
+#define BLYNK_PRINT Serial
