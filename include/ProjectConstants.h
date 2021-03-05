@@ -1,5 +1,5 @@
 #pragma once
-
+#include <FastLED.h>
 // PINOUT
 const int DATA_PIN = 5; // digital pin 1 on the Wemos D1Mini afaik
 
@@ -14,3 +14,15 @@ const int hue_sunlight = 60;
 // Blynk Debug
 #define BLYNK_PRINT Serial
 #define DEBUG
+
+typedef struct Alarms{
+    char DayOfWeekHist[7];
+    int Hour;
+    int Minute;
+} stAlarms;
+
+typedef struct alarmVars {
+    stAlarms* nextAlarm;
+    struct CRGB* ledArray;
+
+  } s_alarmVars;

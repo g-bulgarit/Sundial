@@ -1,3 +1,5 @@
+#define FASTLED_ALLOW_INTERRUPTS 1
+#define FASTLED_INTERRUPT_RETRY_COUNT 1
 #include <FastLED.h>
 #include <ESP8266WiFi.h>
 #include <BlynkSimpleEsp8266.h>
@@ -20,7 +22,6 @@ Ticker update;
 // Define an LED array
 static CRGB leds[NUM_LEDS];
 
-
 void setup() { 
   // Initiallize pins
   pinMode(5, OUTPUT);
@@ -30,6 +31,7 @@ void setup() {
 
   // Set LED Type
   FastLED.addLeds<WS2812B, DATA_PIN, GRB>(leds, NUM_LEDS);  // GRB ordering is typical
+  FastLED.setBrightness(50);
 
   // TODO: Load alarm from eeprom
   EEPROM.begin(256); // Emulate 256 bytes of EEPROM in RAM
@@ -42,7 +44,11 @@ void setup() {
   currentAlarmPtr->Minute = currentAlarm.Minute;
   memcpy(currentAlarmPtr->DayOfWeekHist, currentAlarm.DayOfWeekHist, sizeof(currentAlarm.DayOfWeekHist));
 
-  std::pair<stAlarms*, CRGB*> pairPtr(currentAlarmPtr, leds);
+  
+
+  s_alarmVars* alarmVariables = (s_alarmVars*)malloc(sizeof(s_alarmVars));
+  alarmVariables->ledArray = leds;
+  alarmVariables->nextAlarm = currentAlarmPtr;
 
   #ifdef DEBUG
   Serial.println("[!] Current Set Alarm:");
@@ -60,14 +66,15 @@ void setup() {
   #endif
 
   // Initiallize Blynk connection  
+  Serial.println("[!] Connecting to WiFi");
   Blynk.begin(sBlynkAuthToken, sWifiAP, sWifiPwd);
+  Serial.println("[V] Connected to WiFi");
 
   // Initiallize RTC
   rtc.begin();
   setSyncInterval(5 * 60); // Sync interval in seconds (5 minutes)
 
-  update.attach(30, checkAlarm, &pairPtr);
-
+  update.attach(10, checkAlarm, alarmVariables);
 }
 
 // Blynk Functions

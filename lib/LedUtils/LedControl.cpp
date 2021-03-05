@@ -23,6 +23,7 @@ void AmberToSunlight(struct CRGB* leds, int introTime, int transitionTimeSec, in
     // Fade to red
     for (int f=0; f < MAX_LED_BRIGHTNESS; f++){
         SetStripColor(leds, hue_amber, 255, f);
+        yield();
         FastLED.delay(800);
     }
 

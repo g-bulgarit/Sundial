@@ -11,40 +11,56 @@ const char* GetWeekday(int dayNumber){
         case 6: return "Friday";
         case 7: return "Saturday";
     }
+    return "fail";
 }
 
 
-void checkAlarm(std::pair<stAlarms*, CRGB*> *currentAlarm){
-    
+void checkAlarm(s_alarmVars *currentAlarm){
     #ifdef DEBUG
     Serial.println("[!] Data:");
     Serial.print("[    >] Alarm Hour: ");
-    Serial.println(currentAlarm->first->Hour);
+    Serial.println(currentAlarm->nextAlarm->Hour);
     Serial.print("[    >] Alarm Minute: ");
-    Serial.println(currentAlarm->first->Minute);
+    Serial.println(currentAlarm->nextAlarm->Minute);
     Serial.println("[    >] Alarm days: ");
     for (int d=0; d<7; d++){
-        if (currentAlarm->first->DayOfWeekHist[d] == 1){
+        if (currentAlarm->nextAlarm->DayOfWeekHist[d] == 1){
         Serial.println(GetWeekday(d));
         }
     }
+
+    Serial.print("Current time is: ");
+    Serial.print(hour());
+    Serial.print(":");
+    Serial.println(minute());
   #endif
+    
+    AmberToSunlight(currentAlarm->ledArray, 30, 30, 30);
 
-    if (currentAlarm->first->DayOfWeekHist[weekday()] == 1){
-        // Today, the alarm should sound!
 
-        if (currentAlarm->first->Hour == hour()){
-            // This hour, the alarm should sound!
-            int minLower, minUpper;
-            minLower = minute()-1;
-            minUpper = minute()+1;
+    // if (currentAlarm->nextAlarm->DayOfWeekHist[weekday()] == 1){
+    //     // Today, the alarm should sound!
 
-            if (minute() >= minLower && minute() <= minUpper){
-                // This is the perfect time to sound the alarm!
-                AmberToSunlight(currentAlarm->second, 30, 30, 30);
-            }
-        }
-    }
+    //     #ifdef DEBUG
+    //     Serial.println("The day matches!");
+    //     #endif
+
+    //     if (currentAlarm->nextAlarm->Hour == hour()){
+    //         #ifdef DEBUG
+    //         Serial.println("The hour matches!");
+    //         #endif
+    //         // This hour, the alarm should sound!
+    //         int minLower, minUpper;
+    //         minLower = currentAlarm->nextAlarm->Minute-1;
+    //         minUpper = currentAlarm->nextAlarm->Minute+1;
+
+    //         if (minute() >= minLower && minute() <= minUpper){
+    //             // This is the perfect time to sound the alarm!
+    //             Serial.println("Raising the alarm!");
+    //             AmberToSunlight(currentAlarm->ledArray, 30, 30, 30);
+    //         }
+    //     }
+    // }
 
     return;
 }
