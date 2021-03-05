@@ -3,6 +3,8 @@
 #include <BlynkSimpleEsp8266.h>
 #include <TimeLib.h>
 #include <WidgetRTC.h>
+#include <EEPROM.h>
+
 
 #include "ProjectConstants.h"
 #include "SecretKeys.h"
@@ -24,6 +26,26 @@ void setup() {
   // Set LED Type
   FastLED.addLeds<WS2812B, DATA_PIN, GRB>(leds, NUM_LEDS);  // GRB ordering is typical
 
+  // TODO: Load alarm from eeprom
+  EEPROM.begin(256); // Emulate 256 bytes of EEPROM in RAM
+  stAlarms currentAlarm;
+  EEPROM.get(0, currentAlarm);
+
+  #ifdef DEBUG
+  Serial.println("[!] Current Set Alarm:");
+  Serial.print("[    >] Alarm Hour: ");
+  Serial.println(currentAlarm.Hour);
+  Serial.print("[    >] Alarm Minute: ");
+  Serial.println(currentAlarm.Minute);
+  Serial.println("[    >] Alarm days: ");
+  for (int d=0; d<7; d++){
+    if (currentAlarm.DayOfWeekHist[d] == 1){
+      Serial.println(GetWeekday(d));
+    }
+  }
+
+  #endif
+
   // Initiallize Blynk connection  
   Blynk.begin(sBlynkAuthToken, sWifiAP, sWifiPwd);
 
@@ -34,68 +56,51 @@ void setup() {
 }
 
 // Blynk Functions
+
+// Time input:
 BLYNK_WRITE(V1) {
+  // Get time from time-input widget, save to eeprom!
+  // Data structure:
+  // 7 bytes | 1 byte hour | 1 byte minute
+  
   TimeInputParam t(param);
-        // Process start time
-        if (t.hasStartTime())
-        {
-            Serial.println(String("Start: ") +
-                        t.getStartHour() + ":" +
-                        t.getStartMinute() + ":" +
-                        t.getStartSecond());
-        }
-        else if (t.isStartSunrise())
-        {
-            Serial.println("Start at sunrise");
-        }
-        else if (t.isStartSunset())
-        {
-            Serial.println("Start at sunset");
-        }
-        else
-        {
-            // Do nothing
-        }
+  // Process timezone
+  t.getTZ();
+  t.getTZ_Offset();
 
-        // Process stop time
+  // stAlarms* Alarm = (stAlarms*)malloc(sizeof(stAlarms));
+  stAlarms Alarm;
+  char DoW[7] = {0};
+  for (int i = 1; i <= 7; i++) {
+      if (t.isWeekdaySelected(i)) {
+        DoW[i] = 1;
+      }
+  }
+  
+  // Populate Alarm Struct
+  memcpy(Alarm.DayOfWeekHist, DoW, sizeof(DoW));
+  Alarm.Hour = t.getStartHour();
+  Alarm.Minute = t.getStartMinute();
 
-        if (t.hasStopTime())
-        {
-            Serial.println(String("Stop: ") +
-                        t.getStopHour() + ":" +
-                        t.getStopMinute() + ":" +
-                        t.getStopSecond());
-        }
-        else if (t.isStopSunrise())
-        {
-            Serial.println("Stop at sunrise");
-        }
-        else if (t.isStopSunset())
-        {
-            Serial.println("Stop at sunset");
-        }
-        else
-        {
-            // Do nothing: no stop time was set
-        }
+  // Save Struct to EEPROM
+  EEPROM.put(0, Alarm);
+  EEPROM.commit();
 
-        // Process timezone
-        // Timezone is already added to start/stop time
+  Serial.println("[!] Stored the alarm in EEPROM!");
+  #ifdef DEBUG
+  Serial.println("[!] Data:");
+  Serial.print("[    >] Alarm Hour: ");
+  Serial.println(Alarm.Hour);
+  Serial.print("[    >] Alarm Minute: ");
+  Serial.println(Alarm.Minute);
+  Serial.print("[    >] Alarm days: ");
+  for (int d=0; d<7; d++){
+    if (Alarm.DayOfWeekHist[d] == 1){
+      Serial.println(GetWeekday(d));
+    }
+  }
 
-        Serial.println(String("Time zone: ") + t.getTZ());
-
-        // Get timezone offset (in seconds)
-        Serial.println(String("Time zone offset: ") + t.getTZ_Offset());
-
-        // Process weekdays (1. Mon, 2. Tue, 3. Wed, ...)
-
-        for (int i = 1; i <= 7; i++) {
-            if (t.isWeekdaySelected(i)) {
-            Serial.println(String("Day ") + i + " is selected");
-            }
-        }
-
-        Serial.println();
+  #endif
 }
 
 BLYNK_WRITE(V2){
@@ -109,7 +114,16 @@ BLYNK_WRITE(V2){
     
 }
 
+BLYNK_WRITE(V3){
+  int r,g,b;
+  r = param[0].asInt();
+  g = param[1].asInt();
+  b = param[2].asInt();
+  SetStripColorRGB(leds, r, g, b);
+}
+
 
 void loop() { 
   Blynk.run();
+  // updateTime();
 }

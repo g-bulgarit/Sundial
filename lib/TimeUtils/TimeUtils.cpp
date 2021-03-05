@@ -1,3 +1,4 @@
+
 const char* GetWeekday(int dayNumber){
     switch (dayNumber){
         case 1: return "Sunday";
@@ -9,3 +10,16 @@ const char* GetWeekday(int dayNumber){
         case 7: return "Saturday";
     }
 }
+
+/*
+void updateTime(int updateIntervalSec){
+    unsigned long currentTime = millis();
+    if (millis() <= currentTime + updateIntervalSec){
+        // Get current time and DoW
+        // Compare time to alarm
+        // Activate wake sequence if alarm should be triggered
+    }
+
+}
+*/
+// Things we get from Blynk: Day(1-7), Hour(0-24), Minute(0-60)
