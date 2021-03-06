@@ -1,23 +1,18 @@
-#define FASTLED_ALLOW_INTERRUPTS 1
-#define FASTLED_INTERRUPT_RETRY_COUNT 1
 #include <FastLED.h>
 #include <ESP8266WiFi.h>
 #include <BlynkSimpleEsp8266.h>
 #include <TimeLib.h>
 #include <WidgetRTC.h>
 #include <EEPROM.h>
-#include <Ticker.h>
-#include <utility>
-
 
 #include "ProjectConstants.h"
+
 #include "SecretKeys.h"
-#include "LedControl.h"
 #include "TimeUtils.h"
+#include "LedControl.h"
 
 
 WidgetRTC rtc;
-Ticker update;
 
 // Define an LED array
 static CRGB leds[NUM_LEDS];
@@ -74,7 +69,20 @@ void setup() {
   rtc.begin();
   setSyncInterval(5 * 60); // Sync interval in seconds (5 minutes)
 
-  update.attach(10, checkAlarm, alarmVariables);
+  while(1){
+    int flag=0;
+    unsigned long timeNow = millis();
+    while (millis() <= timeNow + 3*1000){
+        Blynk.run();
+        yield();
+    }
+    // Time had passed, check the current time!
+    flag = checkCurrentTime(alarmVariables->nextAlarm);
+    if (flag){
+        AmberToSunlight(alarmVariables->ledArray, 30, 30, 30);
+    }
+    Blynk.run();
+}
 }
 
 // Blynk Functions
@@ -92,10 +100,10 @@ BLYNK_WRITE(V1) {
 
   // stAlarms* Alarm = (stAlarms*)malloc(sizeof(stAlarms));
   stAlarms Alarm;
-  char DoW[7] = {0};
+  uint8_t DoW[7] = {0};
   for (int i = 1; i <= 7; i++) {
       if (t.isWeekdaySelected(i)) {
-        DoW[i] = 1;
+        DoW[i-1] = 1;
       }
   }
   
@@ -117,13 +125,15 @@ BLYNK_WRITE(V1) {
   Serial.print("[    >] Alarm Minute: ");
   Serial.println(Alarm.Minute);
   Serial.println("[    >] Alarm days: ");
-  for (int d=0; d<7; d++){
+  for (int d=0; d<6; d++){
     if (Alarm.DayOfWeekHist[d] == 1){
       Serial.println(GetWeekday(d));
     }
   }
   #endif
 
+  Serial.println("[!] Restarting!");
+  ESP.restart();
 }
 
 BLYNK_WRITE(V2){

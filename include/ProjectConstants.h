@@ -24,5 +24,4 @@ typedef struct Alarms{
 typedef struct alarmVars {
     stAlarms* nextAlarm;
     struct CRGB* ledArray;
-
   } s_alarmVars;
