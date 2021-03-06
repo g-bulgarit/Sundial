@@ -40,7 +40,7 @@ void setup() {
   memcpy(currentAlarmPtr->DayOfWeekHist, currentAlarm.DayOfWeekHist, sizeof(currentAlarm.DayOfWeekHist));
 
   
-
+  // Create a struct to hold most of the required parameters for every other function
   s_alarmVars* alarmVariables = (s_alarmVars*)malloc(sizeof(s_alarmVars));
   alarmVariables->ledArray = leds;
   alarmVariables->nextAlarm = currentAlarmPtr;
@@ -57,7 +57,6 @@ void setup() {
       Serial.println(GetWeekday(d));
     }
   }
-
   #endif
 
   // Initiallize Blynk connection  
@@ -69,10 +68,14 @@ void setup() {
   rtc.begin();
   setSyncInterval(5 * 60); // Sync interval in seconds (5 minutes)
 
+  // Main loop...
+  // Bad practice to have a loop in the setup routine, but it only makes sense in this context
   while(1){
     int flag=0;
     unsigned long timeNow = millis();
     while (millis() <= timeNow + 3*1000){
+        // Calling Blynk.run from within to keep connection alive,
+        // And yield to allow the OS to deal with other things while it waits
         Blynk.run();
         yield();
     }
@@ -156,6 +159,6 @@ BLYNK_WRITE(V3){
 }
 
 
-void loop() { 
+void loop() {
   Blynk.run();
 }
