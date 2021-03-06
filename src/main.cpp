@@ -73,7 +73,7 @@ void setup() {
   while(1){
     int flag=0;
     unsigned long timeNow = millis();
-    while (millis() <= timeNow + 3*1000){
+    while (millis() <= timeNow + UPDATE_RATE_SEC*1000){
         // Calling Blynk.run from within to keep connection alive,
         // And yield to allow the OS to deal with other things while it waits
         Blynk.run();
@@ -82,7 +82,7 @@ void setup() {
     // Time had passed, check the current time!
     flag = checkCurrentTime(alarmVariables->nextAlarm);
     if (flag){
-        AmberToSunlight(alarmVariables->ledArray, 30, 30, 30);
+        AmberToSunlight(alarmVariables->ledArray, 120, 180, 180);
     }
     Blynk.run();
 }
@@ -140,13 +140,9 @@ BLYNK_WRITE(V1) {
 }
 
 BLYNK_WRITE(V2){
-    String currentTime = String(hour()) + ":" + minute() + ":" + second();
-    Serial.print("Time now is:");
-    Serial.println(currentTime);
-    String currentWeekday = GetWeekday(weekday());
-    Serial.print("Time day is:");
-    Serial.println(currentWeekday);
-    AmberToSunlight(leds, 30 ,30, 20);
+  // This used to be a debug button but it's repurposed now
+  // This button shuts off the LEDs for manual mode.
+    SetStripColorRGB(leds, 0, 0, 0);
     
 }
 
@@ -156,6 +152,14 @@ BLYNK_WRITE(V3){
   g = param[1].asInt();
   b = param[2].asInt();
   SetStripColorRGB(leds, r, g, b);
+}
+
+BLYNK_WRITE(V4){
+  int inputBrightness = param.asInt();
+  Serial.print("[!] New brightness value:");
+  Serial.println(inputBrightness);
+  FastLED.setBrightness(inputBrightness);
+  FastLED.show();
 }
 
 
