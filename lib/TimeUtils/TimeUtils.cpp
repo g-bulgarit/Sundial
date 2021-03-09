@@ -58,3 +58,5 @@ int checkCurrentTime(stAlarms* nextAlarm){
     // It's not the right time to wake up, return 0.
     return 0;
 }
+
+
