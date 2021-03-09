@@ -13,6 +13,38 @@
 
 
 WidgetRTC rtc;
+BlynkTimer wifi_wd;
+
+void PeriodicWiFiCheck(){
+  #ifdef DEBUG
+  Serial.println("[!] Checking connections...");
+  #endif
+
+  // First, check Blynk connection
+  if (!Blynk.connected()){
+    yield();
+    // Check WiFi status
+    if (WiFi.status() != WL_CONNECTED){
+      #ifdef DEBUG
+      Serial.println("[!] Reconnecting to WiFi");
+      #endif
+
+      WiFi.begin(sWifiAP, sWifiPwd);
+    }
+
+    // Check if the issue is the blynk servers
+    if (WiFi.status() == WL_CONNECTED && !Blynk.connected()){
+      #ifdef DEBUG
+      Serial.println("[!] Reconnecting to Blynk");
+      #endif
+
+      Blynk.connect();
+    }
+  }
+  #ifdef DEBUG
+  Serial.println("[!] Connections OK");
+  #endif
+}
 
 // Define an LED array
 static CRGB leds[NUM_LEDS];
@@ -60,13 +92,19 @@ void setup() {
   #endif
 
   // Initiallize Blynk connection  
-  Serial.println("[!] Connecting to WiFi");
-  Blynk.begin(sBlynkAuthToken, sWifiAP, sWifiPwd);
-  Serial.println("[V] Connected to WiFi");
+  while (!Blynk.connected()){
+    Serial.println("[!] Connecting to WiFi");
+    Blynk.begin(sBlynkAuthToken, sWifiAP, sWifiPwd);
+    Serial.println("[V] Connected to WiFi");
+  }
+  
 
   // Initiallize RTC
   rtc.begin();
   setSyncInterval(5 * 60); // Sync interval in seconds (5 minutes)
+
+  // WiFi Check - diagnose and solve connection problems every 30 seconds
+  wifi_wd.setInterval(30000L, PeriodicWiFiCheck);
 
   // Main loop...
   // Bad practice to have a loop in the setup routine, but it only makes sense in this context
@@ -77,6 +115,8 @@ void setup() {
         // Calling Blynk.run from within to keep connection alive,
         // And yield to allow the OS to deal with other things while it waits
         Blynk.run();
+        wifi_wd.run();
+
         yield();
     }
     // Time had passed, check the current time!
@@ -85,6 +125,8 @@ void setup() {
         AmberToSunlight(alarmVariables->ledArray, 120, 180, 180);
     }
     Blynk.run();
+    wifi_wd.run();
+
 }
 }
 
