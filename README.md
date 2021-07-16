@@ -4,7 +4,7 @@ ______________________
 
 
 ## Current Status:
-Currently, the project is based mostly off of the free Blynk framework, that take care of the connectivity, the RTC and even the alarm component.
+Currently, the project is based mostly off of the free Blynk framework, that takes care of the connectivity, the RTC and even the alarm component.
 
 The RGB adressable leds are being controlled by the wonderful FastLED library. This code is mostly an integration of the exisiting components into a working device.
 
